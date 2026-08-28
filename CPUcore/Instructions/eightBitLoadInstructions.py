@@ -1,4 +1,4 @@
 import registers
 
-def loadRegisterFromRegister(register1, register2):
-    registers.registerFile[register1] = registers.registerFile[register2]
+def loadIntoRegisterFromRegister(r1, r2):
+    registers.registerFile[r1] = registers.registerFile[r2]
