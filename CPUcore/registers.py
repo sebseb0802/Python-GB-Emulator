@@ -4,7 +4,7 @@ registerFile = [
     bitarray(8), # Instruction Register (8-bit)
     bitarray(8), # Interrupt Enable (8-bit)
     bitarray(8), # Accumulator (8-bit)
-    bitarray(8), # Flags Register (8-bit (?))
+    bitarray(8), # Flags Register (8-bit)
     bitarray(8), # B (8-bit, can form a 16-bit whole with C)
     bitarray(8), # C (8-bit, can form a 16-bit whole with B)
     bitarray(8), # D (8-bit, can form a 16-bit whole with E)
