@@ -3,17 +3,17 @@ from bitarray import bitarray
 
 # Helper functions:
 
-def binaryAddition(a, b):
+def binaryAddition(a, b, hcCheck=True):
     # Adds two binary numbers, a and b, together, and returns the result and whether there was a carry as a list.
     
-    carry = False
+    carryFlag = 0
     while b.count(1) > 0:
         partial_sum = a ^ b # Sum of a and b, ignoring carries
     
-        if (a & b)[0] == 1 and carry == False:
+        if (a & b)[0] == 1 and carryFlag == 0:
             # If the MSB of a & b == 1, then the carry flag must be set (if not already set),
             # since a 1 is about to be shifted left, off of the byte
-            carry = True
+            carryFlag = 1
     
         # Identifies where a and b are both 1,
         # which indicates where carries will occur.
@@ -23,13 +23,18 @@ def binaryAddition(a, b):
         a = partial_sum
         b = carry
 
-    return [a, carry, halfCarryCheck(a, b)]
+    if hcCheck:
+        return [a, carryFlag, halfCarryCheck(a, b)]
+    else:
+        # halfCarryCheck should not use the version of the function that returns halfCarryCheck,
+        # because this will start recursion
+        return [a, carryFlag]
 
 def halfCarryCheck(a, b):
     # Uses bitmasks to check if a half-carry will occur during the addition of two binary numbers, a and b,
     # and returns this boolean value
 
-    if (((a & 0x0F) + (b & 0x0F)) & 0x10) == 0x10:
+    if (binaryAddition((a & bitarray('00001111')), (b & bitarray('00001111')), False)[0] & bitarray('00010000')) == bitarray('00010000'):
         return True
     else:
         return False
@@ -56,6 +61,8 @@ def addToAFromRegister(r2):
 
     # additionResults[1] stores whether a carry resulted from the addition,
     # and this Boolean value is stored in the carry flag.
+    print(type(registers.registerFile[3]))
+    print(additionResults[1])
     registers.registerFile[3][3] = additionResults[1]
 
     # additionResults[2] stores whether a half-carry resulted from the addition,
@@ -73,7 +80,7 @@ def addToAFromRegister(r2):
 def addToAFromRegisterAndCarryFlag(r2):
     a = registers.registerFile[2]
     b = registers.registerFile[r2]
-    carryFlag = registers.registerFile[3][3]
+    carryFlag = bitarray(f'0000000{registers.registerFile[3][3]}')
 
     # First, add the values of a and the other register, store this value in a,
     # and update the carry/half-carry flags accordingly.
@@ -112,3 +119,24 @@ def subRegisterFromA(r2):
     registers.registerFile[3][1] = True # Subtraction has occurred, so the subtraction flag must be set
     
     registers.registerFile[2] = a # Store the result of subtraction in A
+
+
+# Testing:
+
+print(f"A: {registers.registerFile[2]}")
+print(f"B: {registers.registerFile[4]}")
+print(f"Flags: {registers.registerFile[3]}")
+
+print("Adding...")
+addToAFromRegisterAndCarryFlag(4)
+
+print(f"A: {registers.registerFile[2]}")
+print(f"B: {registers.registerFile[4]}")
+print(f"Flags: {registers.registerFile[3]}")
+
+print("Subtracting...")
+subRegisterFromA(4)
+
+print(f"A: {registers.registerFile[2]}")
+print(f"B: {registers.registerFile[4]}")
+print(f"Flags: {registers.registerFile[3]}")
