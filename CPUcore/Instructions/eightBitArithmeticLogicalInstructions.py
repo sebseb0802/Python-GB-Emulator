@@ -1,48 +1,78 @@
 import CPUcore.registers as registers
+from bitarray import bitarray
 
-def addToRegisterFromRegister(r1, r2):
-    a = registers.registerFile[r1]
-    b = registers.registerFile[r2]
 
-    if (((a & 0x0F) + (b & 0x0F)) & 0x10) == 0x10:
-        # Uses bitmasks to check if the half-carry flag needs to be set
-        registers.registerFile[3][2] = True
-
+def binaryAddition(a, b):
+    # Adds two binary numbers, a and b, together, and returns the result and whether there was a carry as a list.
+    
+    carry = False
     while b.count(1) > 0:
         partial_sum = a ^ b # Sum of a and b, ignoring carries
-
-        if (a & b)[0] == 1 and registers.registerFile[3][3] == False:
+    
+        if (a & b)[0] == 1 and carry == False:
             # If the MSB of a & b == 1, then the carry flag must be set (if not already set),
             # since a 1 is about to be shifted left, off of the byte
-            registers.registerFile[3][3] = True
-
+            carry = True
+    
         # Identifies where a and b are both 1,
         # which indicates where carries will occur.
         # Carries are then added to the partial sum again at the start of the loop
         carry = (a & b) << 1
-
+    
         a = partial_sum
         b = carry
 
+    return [a, carry]
+
+def halfCarryCheck(a, b):
+    # Uses bitmasks to check if a half-carry will occur during the addition of two binary numbers, a and b,
+    # and returns this boolean value
+
+    if (((a & 0x0F) + (b & 0x0F)) & 0x10) == 0x10:
+        return True
+
+
+def addToAFromRegister(r2):
+    a = registers.registerFile[2]
+    b = registers.registerFile[r2]
+
+    registers.registerFile[3][2] = halfCarryCheck(a, b)
+
+    additionResults = binaryAddition(a, b)
+    a = additionResults[0] # additionResults[0] stores the result of the addition
+
+    # additionResults[1] stores whether a carry resulted from the addition,
+    # and this Boolean value is stored in the carry flag.
+    registers.registerFile[3][3] = additionResults[1]
+
     if a.count(1) == 0:
-        # If a is zero as a result of the addition/shifting, then the zero flag must be set
+        # If a is zero as a result of the addition, then the zero flag must be set
         registers.registerFile[3][0] = True
 
     registers.registerFile[3][1] = False # Subtraction has not occurred, so the subtraction flag must be cleared
 
-    registers.registerFile[r1] = a # Store the result of addition in the first register
+    registers.registerFile[2] = a # Store the result of addition in A
 
-'''
-Testing:
+def subRegisterFromA(r2):
+    a = registers.registerFile[2]
+    b = registers.registerFile[r2]
 
-print(f"A: {registers.registerFile[2]}")
-print(f"B: {registers.registerFile[4]}")
-print(f"Flags: {registers.registerFile[3]}")
+    # In order to perform subtraction, we will convert the value of b to a negative number using
+    # Two's complement, and then add that to the value of a, before storing in A.
+    b = ~b # Inverting the bits of b
+    c = bitarray('00000001') # c is used to add 1 to b to complete Two's complement in the following line
+    b = binaryAddition(b, c)[0]
 
-print("Operation...")
-addToRegisterFromRegister(2, 4)
+    registers.registerFile[3][2] = halfCarryCheck(a, b)
 
-print(f"A: {registers.registerFile[2]}")
-print(f"B: {registers.registerFile[4]}")
-print(f"Flags: {registers.registerFile[3]}")
-'''
+    additionResults = binaryAddition(a, b)
+    a = additionResults[0]
+    registers.registerFile[3][3] = additionResults[1]
+    
+    if a.count(1) == 0:
+        # If a is zero as a result of the subtraction, then the zero flag must be set
+        registers.registerFile[3][0] = True
+    
+    registers.registerFile[3][1] = True # Subtraction has occurred, so the subtraction flag must be set
+    
+    registers.registerFile[2] = a # Store the result of subtraction in A
