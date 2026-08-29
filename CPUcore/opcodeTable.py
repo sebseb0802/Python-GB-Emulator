@@ -19,5 +19,11 @@ opcodeTable = {
     0x44: lambda: eightbitload.loadIntoRegisterFromRegister(register_B, register_H),
     0x45: lambda: eightbitload.loadIntoRegisterFromRegister(register_B, register_L),
     0x47: lambda: eightbitload.loadIntoRegisterFromRegister(register_B, register_A),
-    0x80: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_B)
+    0x80: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_B),
+    0x81: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_C),
+    0x82: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_D),
+    0x83: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_E),
+    0x84: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_H),
+    0x85: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_L),
+    0x87: lambda: eightbitarith.addToRegisterFromRegister(register_A, register_A)
 }
