@@ -48,7 +48,7 @@ def binarySubtraction(a, b):
 # Actual instructions:
 
 def addToAFromRegister(r2):
-    a = registers.registerFile[2]
+    a = registers.registerFile[2] # Register A
     b = registers.registerFile[r2]
 
     additionResults = binaryAddition(a, b)
@@ -70,11 +70,37 @@ def addToAFromRegister(r2):
 
     registers.registerFile[2] = a # Store the result of addition in A
 
+def addToAFromRegisterAndCarryFlag(r2):
+    a = registers.registerFile[2]
+    b = registers.registerFile[r2]
+    carryFlag = registers.registerFile[3][3]
+
+    # First, add the values of a and the other register, store this value in a,
+    # and update the carry/half-carry flags accordingly.
+    tempAdditionResults = binaryAddition(a, b)
+    a = tempAdditionResults[0]
+    registers.registerFile[3][3] = tempAdditionResults[1]
+    registers.registerFile[3][2] = tempAdditionResults[2]
+
+    # Then, add the values of a and the carry flag, store this value in a,
+    # and update the carry/half-carry flags accordingly.
+    fullAdditionResults = binaryAddition(a, carryFlag)
+    a = fullAdditionResults[0]
+    registers.registerFile[3][3] = fullAdditionResults[1]
+    registers.registerFile[3][2] = tempAdditionResults[2]
+
+    if a.count(1) == 0:
+        registers.registerFile[3][0] = True
+
+    registers.registerFile[3][1] = False
+
+    registers.registerFile[2] = a
+
 def subRegisterFromA(r2):
     a = registers.registerFile[2]
     b = registers.registerFile[r2]
 
-    subtractionResults = binarySubtraction(a, b)
+    subtractionResults = binarySubtraction(a, b) # binarySubtraction returns the same list structure as binaryAddition
     a = subtractionResults[0]
     registers.registerFile[3][3] = subtractionResults[1]
     registers.registerFile[3][2] = subtractionResults[2]
