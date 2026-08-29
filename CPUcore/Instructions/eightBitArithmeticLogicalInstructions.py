@@ -1,6 +1,7 @@
 import CPUcore.registers as registers
 from bitarray import bitarray
 
+# Helper functions:
 
 def binaryAddition(a, b):
     # Adds two binary numbers, a and b, together, and returns the result and whether there was a carry as a list.
@@ -22,7 +23,7 @@ def binaryAddition(a, b):
         a = partial_sum
         b = carry
 
-    return [a, carry]
+    return [a, carry, halfCarryCheck(a, b)]
 
 def halfCarryCheck(a, b):
     # Uses bitmasks to check if a half-carry will occur during the addition of two binary numbers, a and b,
@@ -30,13 +31,25 @@ def halfCarryCheck(a, b):
 
     if (((a & 0x0F) + (b & 0x0F)) & 0x10) == 0x10:
         return True
+    else:
+        return False
 
+def binarySubtraction(a, b):
+    # Subtracts b from a, two binary numbers, and returns the result and whether there was a carry as a list.
+
+    # In order to perform subtraction, we will convert the value of b to a negative number using
+    # Two's complement, and then add that to the value of a
+    b = ~b # Inverting the bits of b
+    c = bitarray('00000001') # c is used to add 1 to b to complete Two's complement in the following line
+    b = binaryAddition(b, c)[0]
+
+    return binaryAddition(a, b)
+
+# Actual instructions:
 
 def addToAFromRegister(r2):
     a = registers.registerFile[2]
     b = registers.registerFile[r2]
-
-    registers.registerFile[3][2] = halfCarryCheck(a, b)
 
     additionResults = binaryAddition(a, b)
     a = additionResults[0] # additionResults[0] stores the result of the addition
@@ -44,6 +57,10 @@ def addToAFromRegister(r2):
     # additionResults[1] stores whether a carry resulted from the addition,
     # and this Boolean value is stored in the carry flag.
     registers.registerFile[3][3] = additionResults[1]
+
+    # additionResults[2] stores whether a half-carry resulted from the addition,
+    # and this Boolean value is stored in the half-carry flag.
+    registers.registerFile[3][2] = additionResults[2]
 
     if a.count(1) == 0:
         # If a is zero as a result of the addition, then the zero flag must be set
@@ -57,17 +74,10 @@ def subRegisterFromA(r2):
     a = registers.registerFile[2]
     b = registers.registerFile[r2]
 
-    # In order to perform subtraction, we will convert the value of b to a negative number using
-    # Two's complement, and then add that to the value of a, before storing in A.
-    b = ~b # Inverting the bits of b
-    c = bitarray('00000001') # c is used to add 1 to b to complete Two's complement in the following line
-    b = binaryAddition(b, c)[0]
-
-    registers.registerFile[3][2] = halfCarryCheck(a, b)
-
-    additionResults = binaryAddition(a, b)
-    a = additionResults[0]
-    registers.registerFile[3][3] = additionResults[1]
+    subtractionResults = binarySubtraction(a, b)
+    a = subtractionResults[0]
+    registers.registerFile[3][3] = subtractionResults[1]
+    registers.registerFile[3][2] = subtractionResults[2]
     
     if a.count(1) == 0:
         # If a is zero as a result of the subtraction, then the zero flag must be set
