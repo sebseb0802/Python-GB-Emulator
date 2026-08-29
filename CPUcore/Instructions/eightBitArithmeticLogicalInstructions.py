@@ -4,18 +4,17 @@ def addToRegisterFromRegister(r1, r2):
     a = registers.registerFile[r1]
     b = registers.registerFile[r2]
 
+    if (((a & 0x0F) + (b & 0x0F)) & 0x10) == 0x10:
+        # Uses bitmasks to check if the half-carry flag needs to be set
+        registers.registerFile[3][2] = True
+
     while b.count(1) > 0:
         partial_sum = a ^ b # Sum of a and b, ignoring carries
 
-        if (a & b)[0] == 1:
-            # If the MSB of a & b == 1, then the carry flag must be set
-            # (Since a 1 is about to be shifted left, off of the byte)
+        if (a & b)[0] == 1 and registers.registerFile[3][3] == False:
+            # If the MSB of a & b == 1, then the carry flag must be set (if not already set),
+            # since a 1 is about to be shifted left, off of the byte
             registers.registerFile[3][3] = True
-
-        if (a & b)[4] == 1:
-            # If bit 3 of a & b == 1, then the half carry flag must be set
-            # (Since a 1 is about to be shifted from the lower nibble to the upper nibble)
-            registers.registerFile[3][2] = True
 
         # Identifies where a and b are both 1,
         # which indicates where carries will occur.
