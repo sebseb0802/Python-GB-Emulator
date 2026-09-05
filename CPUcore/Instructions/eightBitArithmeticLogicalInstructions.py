@@ -33,7 +33,6 @@ def binaryAddition(a, b, hcCheck=True):
 def halfCarryCheck(a, b):
     # Uses bitmasks to check if a half-carry will occur during the addition of two binary numbers, a and b,
     # and returns this boolean value
-
     if (binaryAddition((a & bitarray('00001111')), (b & bitarray('00001111')), False)[0] & bitarray('00010000')) == bitarray('00010000'):
         return True
     else:
@@ -80,7 +79,7 @@ def addToAFromRegister(r2):
 def addToAFromRegisterAndCarryFlag(r2):
     a = registers.registerFile[2]
     b = registers.registerFile[r2]
-    carryFlag = bitarray(f'0000000{registers.registerFile[3][3]}')
+    carryFlag = bitarray(f'0000000{registers.registerFile[3][3]}') # Get the carry flag bit from the registerFile for use in the addition
 
     # First, add the values of a and the other register, store this value in a,
     # and update the carry/half-carry flags accordingly.
@@ -99,9 +98,9 @@ def addToAFromRegisterAndCarryFlag(r2):
     if a.count(1) == 0:
         registers.registerFile[3][0] = True
 
-    registers.registerFile[3][1] = False
+    registers.registerFile[3][1] = False # Set subtraction flag to false
 
-    registers.registerFile[2] = a
+    registers.registerFile[2] = a # Store the result of addition in A
 
 def subRegisterFromA(r2):
     a = registers.registerFile[2]
@@ -120,6 +119,31 @@ def subRegisterFromA(r2):
     
     registers.registerFile[2] = a # Store the result of subtraction in A
 
+def subRegisterAndCarryFlagFromA(r2):
+    a = registers.registerFile[2]
+    b = registers.registerFile[r2]
+    carryFlag = bitarray(f'0000000{registers.registerFile[3][3]}') # Get the carry flag bit from the registerFile for use in the subtraction
+    
+    # First, subtract the value of the other register from a, store this value in a,
+    # and update the carry/half-carry flags accordingly.
+    tempSubtractionResults = binarySubtraction(a, b)
+    a = tempSubtractionResults[0]
+    registers.registerFile[3][3] = tempSubtractionResults[1]
+    registers.registerFile[3][2] = tempSubtractionResults[2]
+
+    # Then, subtract the value of the carry flag from a, store this value in a,
+    # and update the carry/half-carry flags accordingly.
+    fullSubtractionResults = binarySubtraction(a, carryFlag)
+    a = fullSubtractionResults[0]
+    registers.registerFile[3][3] = fullSubtractionResults[1]
+    registers.registerFile[3][2] = tempSubtractionResults[2]
+
+    if a.count(1) == 0:
+        registers.registerFile[3][0] = True
+
+    registers.registerFile[3][1] = True # Set subtraction flag to true
+
+    registers.registerFile[2] = a # Store the result of subtraction in A
 
 # Testing:
 
@@ -127,15 +151,15 @@ print(f"A: {registers.registerFile[2]}")
 print(f"B: {registers.registerFile[4]}")
 print(f"Flags: {registers.registerFile[3]}")
 
-print("Adding...")
+print("Adding with flag...")
 addToAFromRegisterAndCarryFlag(4)
 
 print(f"A: {registers.registerFile[2]}")
 print(f"B: {registers.registerFile[4]}")
 print(f"Flags: {registers.registerFile[3]}")
 
-print("Subtracting...")
-subRegisterFromA(4)
+print("Subtracting with flag...")
+subRegisterAndCarryFlagFromA(4)
 
 print(f"A: {registers.registerFile[2]}")
 print(f"B: {registers.registerFile[4]}")
