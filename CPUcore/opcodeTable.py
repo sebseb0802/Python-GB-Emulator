@@ -81,5 +81,12 @@ opcodeTable = {
     0x93: lambda: eightbitarith.subRegisterFromA(register_E),
     0x94: lambda: eightbitarith.subRegisterFromA(register_H),
     0x95: lambda: eightbitarith.subRegisterFromA(register_L),
-    0x97: lambda: eightbitarith.subRegisterFromA(register_A)
+    0x97: lambda: eightbitarith.subRegisterFromA(register_A),
+    0x98: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_B),
+    0x99: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_C),
+    0x9A: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_D),
+    0x9B: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_E),
+    0x9C: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_H),
+    0x9D: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_L),
+    0x9F: lambda: eightbitarith.subRegisterAndCarryFlagFromA(register_A)
 }
