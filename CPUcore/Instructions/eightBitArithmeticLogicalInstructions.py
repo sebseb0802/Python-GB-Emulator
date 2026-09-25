@@ -156,6 +156,24 @@ def subRegisterAndCarryFlagFromA(r2):
 
     registers.registerFile[2] = a # Store the result of subtraction in A
 
+def logicalAND(r2):
+    a = registers.registerFile[2]
+    b = registers.registerFile[r2]
+
+    result = a & b # Perform a bitwise AND operation between register A and the other register
+
+    if result.count(1) == 0:
+        # If the result is zero, then the zero flag must be set
+        registers.registerFile[3][0] = True
+
+    registers.registerFile[3][1] = False # Subtraction has not occurred, so the subtraction flag must be cleared
+
+    registers.registerFile[3][2] = True # Set the half-carry flag
+
+    registers.registerFile[3][3] = False # Clear the carry flag
+
+    registers.registerFile[2] = result # Store the result of the operation in register A
+
 
 # Testing:
 
@@ -163,6 +181,7 @@ print(f"A: {registers.registerFile[2]}")
 print(f"B: {registers.registerFile[4]}")
 print(f"Flags: {registers.registerFile[3]}")
 
+"""
 print("Adding with flag...")
 addToAFromRegisterAndCarryFlag(4)
 
@@ -172,6 +191,11 @@ print(f"Flags: {registers.registerFile[3]}")
 
 print("Subtracting with flag...")
 subRegisterAndCarryFlagFromA(4)
+
+"""
+
+print("AND between a and b...")
+logicalAND(4)
 
 print(f"A: {registers.registerFile[2]}")
 print(f"B: {registers.registerFile[4]}")
