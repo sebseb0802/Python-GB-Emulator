@@ -95,5 +95,12 @@ opcodeTable = {
     0xA3: lambda: eightbitarith.logicalAND(register_E),
     0xA4: lambda: eightbitarith.logicalAND(register_H),
     0xA5: lambda: eightbitarith.logicalAND(register_L),
-    0xA7: lambda: eightbitarith.logicalAND(register_A)
+    0xA7: lambda: eightbitarith.logicalAND(register_A),
+    0xA8: lambda: eightbitarith.logicalXOR(register_B),
+    0xA9: lambda: eightbitarith.logicalXOR(register_C),
+    0xAA: lambda: eightbitarith.logicalXOR(register_D),
+    0xAB: lambda: eightbitarith.logicalXOR(register_E),
+    0xAC: lambda: eightbitarith.logicalXOR(register_H),
+    0xAD: lambda: eightbitarith.logicalXOR(register_L),
+    0xAF: lambda: eightbitarith.logicalXOR(register_A)
 }
